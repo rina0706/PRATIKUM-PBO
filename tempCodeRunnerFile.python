@@ -1,0 +1,45 @@
+class Kasir:
+    nama_instansi = "Sushi Ten Resto"
+    total_transaksi = 0
+    __pin_rahasia = "1234"
+
+    def __init__(self, nama_kasir, shift):
+        self.nama_kasir = nama_kasir
+        self.shift = shift
+        self.__saldo_kas = 0
+
+    def terima_pembayaran(self, pesanan):
+        total = pesanan.hitung_total()
+        self.__saldo_kas += total
+        Kasir.total_transaksi += 1
+        pesanan.status = "Selesai"
+        print(f"Kasir {self.nama_kasir} menerima Rp{total:,} dari pesanan #{pesanan.id_pesanan}")
+
+    def tampilkan_saldo(self):
+        print(f"Saldo kas {self.nama_kasir} (shift {self.shift}): Rp{self.__saldo_kas:,}")
+
+    @property
+    def saldo_kas(self):
+        return self.__saldo_kas
+
+    @saldo_kas.setter
+    def saldo_kas(self, nilai):
+        if nilai < 0:
+            raise ValueError("Saldo kas tidak boleh negatif!")
+        self.__saldo_kas = nilai
+
+    @classmethod
+    def dari_dict(cls, data):
+        return cls(data["nama"], data["shift"])
+
+    @classmethod
+    def cek_pin(cls, pin):
+        return pin == cls.__pin_rahasia
+
+    @staticmethod
+    def format_rupiah(angka):
+        return f"Rp{angka:,}".replace(",", ".")
+
+    @staticmethod
+    def validasi_shift(shift):
+        return shift.lower() in ["pagi", "siang", "malam"]
