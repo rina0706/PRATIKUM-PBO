@@ -1,9 +1,5 @@
 from abc import ABC, abstractmethod
 
-
-# =====================================================================
-# ABSTRAKSI: MenuSushi sekarang adalah Abstract Base Class (ABC)
-# =====================================================================
 class MenuSushi(ABC):
     nama_restoran = "Sushi Ten"
     total_menu_terdaftar = 0
@@ -19,7 +15,6 @@ class MenuSushi(ABC):
         self.__kode_menu = f"MENU-{MenuSushi.total_menu_terdaftar + 1:03d}"
         MenuSushi.total_menu_terdaftar += 1
 
-    # ---------- Abstract method (wajib di-override semua subclass) ----------
     @abstractmethod
     def tampilkan_info(self):
         """Tampilkan info menu. Wajib diimplementasikan oleh kelas anak."""
@@ -30,7 +25,6 @@ class MenuSushi(ABC):
         """Kembalikan deskripsi cara penyajian. Wajib diimplementasikan kelas anak."""
         pass
 
-    # ---------- Method konkret (dipakai bersama semua subclass) ----------
     def info_lengkap(self):
         """Alur yang sama untuk semua menu; detailnya dijawab tiap subclass."""
         self.tampilkan_info()
@@ -47,14 +41,12 @@ class MenuSushi(ABC):
             self._stok -= jumlah
             print(f"Stok {self.nama} berkurang {jumlah}. Sisa: {self._stok}")
 
-    # ---------- Operator overloading ----------
     def __str__(self):
         return f"{self.nama} (Rp{self.harga:,})"
 
     def __lt__(self, other):
         return self.harga < other.harga
 
-    # ---------- Getter & Setter ----------
     @property
     def stok(self):
         return self._stok
@@ -67,7 +59,6 @@ class MenuSushi(ABC):
 
     @classmethod
     def dari_dict(cls, data):
-        # Dipanggil lewat subclass konkret, mis. SideDish.dari_dict({...})
         return cls(**data)
 
     @classmethod
@@ -89,9 +80,6 @@ class MenuSushi(ABC):
         return int(harga * (1 + MenuSushi.pajak_persen / 100))
 
 
-# =====================================================================
-# SUBCLASS KONKRET (mengimplementasikan SEMUA abstract method)
-# =====================================================================
 class SushiNigiri(MenuSushi):
     def __init__(self, nama, harga, stok, jenis_ikan, is_premium=False):
         super().__init__(nama, harga, stok, "Nigiri")
@@ -149,10 +137,6 @@ class SideDish(MenuSushi):
         return f"Disajikan {self.suhu_sajian.lower()} dalam mangkuk kecil."
 
 
-# =====================================================================
-# ASOSIASI: Pesanan --> MenuSushi
-# (Pesanan hanya memegang referensi ke menu yang sudah ada)
-# =====================================================================
 class Pesanan:
     nomor_pesanan_terakhir = 0
     status_default = "Menunggu"
@@ -184,7 +168,6 @@ class Pesanan:
               f"{self.menu.nama} x{self.jumlah} | Status: {self.status} | "
               f"Total: Rp{self.__total_bayar:,}")
 
-    # Duck typing: nama method sama dengan DaftarMenu & Kasir
     def cetak_ringkasan(self):
         print(f"  [Pesanan] #{self.id_pesanan} atas nama {self.nama_pelanggan} "
               f"({self.menu.nama} x{self.jumlah}) - {self.status}")
@@ -219,10 +202,6 @@ class Pesanan:
         return isinstance(jumlah, int) and jumlah > 0
 
 
-# =====================================================================
-# AGREGASI: DaftarMenu o--> MenuSushi
-# (Menu dibuat DI LUAR, lalu ditambahkan; menu tetap ada walau daftar dihapus)
-# =====================================================================
 class DaftarMenu:
     nama_instansi = "Sushi Ten Resto"
     total_daftar = 0
@@ -260,7 +239,6 @@ class DaftarMenu:
             print(f"{i}. ", end="")
             m.tampilkan_info()
 
-    # Operator overloading: len(daftar)
     def __len__(self):
         return len(self._koleksi_menu)
 
@@ -349,11 +327,6 @@ class RiwayatTransaksi:
         return f"[{self.id_trx}] {self.nama_pelanggan} - Rp{self.total:,}"
 
 
-# =====================================================================
-# KOMPOSISI: KasirDenganRiwayat *--> RiwayatTransaksi
-# (RiwayatTransaksi dibuat DI DALAM kasir lewat _buat_riwayat(),
-#  dan tidak punya arti tanpa kasir pemiliknya)
-# =====================================================================
 class KasirDenganRiwayat(Kasir):
     def __init__(self, nama_kasir, shift):
         super().__init__(nama_kasir, shift)
@@ -376,10 +349,6 @@ class KasirDenganRiwayat(Kasir):
             print(f"  {trx}")
 
 
-# =====================================================================
-# DUCK TYPING: satu fungsi untuk objek yang TIDAK berhubungan pewarisan
-# (Pesanan, DaftarMenu, Kasir sama-sama punya cetak_ringkasan())
-# =====================================================================
 def cetak_laporan(daftar_objek):
     for obj in daftar_objek:
         obj.cetak_ringkasan()
@@ -406,7 +375,6 @@ if __name__ == "__main__":
     class MenuTidakLengkap(MenuSushi):
         def tampilkan_info(self):
             print("info")
-        # Lupa implementasi cara_sajian()!
 
     try:
         menu_gagal = MenuTidakLengkap("Menu Gagal", 10000, 5, "Umum")
@@ -416,11 +384,11 @@ if __name__ == "__main__":
     print("\n--- 3. Polimorfisme via Pewarisan (satu loop, perilaku berbeda) ---")
     semua_menu = [menu_umum, nigiri1, nigiri2, roll1, roll2]
     for menu in semua_menu:
-        menu.tampilkan_info()      # override: output beda tiap subclass
+        menu.tampilkan_info()      
 
     print("\n--- 4. Method Konkret Abstract Class: info_lengkap() ---")
     for menu in semua_menu:
-        menu.info_lengkap()        # alur sama, cara_sajian() beda tiap subclass
+        menu.info_lengkap()        
 
     print("\n--- 5. Method Unik Subclass ---")
     nigiri1.cek_kualitas()
